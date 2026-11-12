@@ -1,14 +1,17 @@
-import { Column, Entity, PrimaryGeneratedColumn,CreateDateColumn, UpdateDateColumn } from "typeorm"
+import { Column, Entity, PrimaryGeneratedColumn,CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn } from "typeorm"
+import { Users } from "../../users/entities/users.entity.js";
+import type { Relation } from "typeorm";
 
 @Entity('doctors')
 export class Doctors{
     @PrimaryGeneratedColumn()
     doctorid:number;
 
-    @Column({
-        type:'int',
+    @OneToOne(()=>Users)
+    @JoinColumn({
+        name:'userid'
     })
-    userid:number;
+    user:Relation<Users>;
 
     @Column({
         type:'varchar',
