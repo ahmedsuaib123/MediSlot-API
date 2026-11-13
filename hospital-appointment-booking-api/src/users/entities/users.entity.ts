@@ -23,6 +23,12 @@ export enum BloodGroup {
   O_NEGATIVE = 'O-',
 }
 
+export enum Gender{
+  MALE='male',
+  FEMALE='female',
+  OTHERS='others',
+}
+
 @Entity('users')
 export class Users {
   @PrimaryGeneratedColumn()
@@ -53,8 +59,8 @@ export class Users {
   age: number;
 
   @Column({
-    type: 'varchar',
-    length: 20,
+    type: 'enum',
+    enum: Gender,
   })
   gender: string;
 
