@@ -45,11 +45,27 @@ export class UsersService {
             const savedUser= await this.userRepo.save(u);
 
             if(savedUser!=null){
+                // return{
+                //     message:'User Created Successfully',
+                //     user:{
+                //         userid: savedUser.userid,
+                //         fullname: savedUser.fullname,
+                //         email: savedUser.email,
+                //         contact: savedUser.contact,
+                //         age: savedUser.age,
+                //         gender: savedUser.gender,
+                //         bloodgroup: savedUser.bloodgroup,
+                //         role: savedUser.role,
+                //     },
+                // };
+
                 return 'User Created Successfully';
-            } else{
+                
+            } else {
                 return 'User Creation Failed';
             }
         } catch(error){
+            console.error('USER REGISTRATION ERROR:', error);
             if(error instanceof ConflictException){
                 throw error;
             }
@@ -64,6 +80,18 @@ export class UsersService {
                 where: {
                     userid:id
                 },
+                select: {
+                    userid:true,
+                    fullname:true,
+                    email:true,
+                    contact:true,
+                    age:true,
+                    gender:true,
+                    bloodgroup:true,
+                    role:true,
+                    created_at:false,
+                    updated_at:false,
+                }
             }
         );
 
