@@ -10,5 +10,6 @@ import { UsersModule } from '../users/users.module.js';
   imports: [TypeOrmModule.forFeature([Doctors]),UsersModule],
   controllers: [DoctorsController],
   providers: [DoctorsService],
+  exports:[DoctorsService],
 })
 export class DoctorsModule {}

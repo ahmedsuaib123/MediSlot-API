@@ -43,38 +43,38 @@ export class DoctorsService {
     async getAllDoctors(){
         const doctors=await this.doctorRepo.find(
             {
-                relations:{
-                    user:true,
-                },
+                // relations:{
+                //     user:true,
+                // },
                 select: {
                     doctorid: true,
                     specialization: true,
                     consultationFee: true,
                     experienceYear: true,
-                    created_at: true,
-                    updated_at: true,
+                    created_at: false,
+                    updated_at: false,
 
-                    user: {
-                        userid: true,
-                        fullname: true,
-                        email: true,
-                        contact: true,
-                    },
+                    // user: {
+                    //     userid: true,
+                    //     fullname: true,
+                    //     email: false,
+                    //     contact: false,
+                    // },
                 },
             }
         );
 
-        //return doctors;
-        return doctors.map((doctor) => ({
-            doctorid: doctor.doctorid,
-            userid: doctor.user.userid,
-            fullname: doctor.user.fullname,
-            email: doctor.user.email,
-            contact: doctor.user.contact,
-            specialization: doctor.specialization,
-            consultationFee: Number(doctor.consultationFee),
-            experienceYear: doctor.experienceYear,
-        }));
+        return doctors;
+        // return doctors.map((doctor) => ({
+        //     doctorid: doctor.doctorid,
+        //     userid: doctor.user.userid,
+        //     fullname: doctor.user.fullname,
+        //     email: doctor.user.email,
+        //     contact: doctor.user.contact,
+        //     specialization: doctor.specialization,
+        //     consultationFee: Number(doctor.consultationFee),
+        //     experienceYear: doctor.experienceYear,
+        // }));
     }
 
     async getDoctorById(id:number):Promise<Doctors|string>{
@@ -174,16 +174,17 @@ export class DoctorsService {
         });
 
         if (doctors.length > 0) {
-            return doctors.map((doctor) => ({
-                doctorid: doctor.doctorid,
-                userid: doctor.user.userid,
-                fullname: doctor.user.fullname,
-                email: doctor.user.email,
-                contact: doctor.user.contact,
-                specialization: doctor.specialization,
-                consultationFee: Number(doctor.consultationFee),
-                experienceYear: doctor.experienceYear,
-            }));
+            // return doctors.map((doctor) => ({
+            //     doctorid: doctor.doctorid,
+            //     userid: doctor.user.userid,
+            //     fullname: doctor.user.fullname,
+            //     email: doctor.user.email,
+            //     contact: doctor.user.contact,
+            //     specialization: doctor.specialization,
+            //     consultationFee: Number(doctor.consultationFee),
+            //     experienceYear: doctor.experienceYear,
+            // }));
+            return doctors;
         } else {
             return 'Doctor Not Found';
         }

@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module.js';
 import { DoctorsModule } from './doctors/doctors.module.js';
 //import { UsersModule } from './users/users.module.js';
 import { UsersModule } from './users/users.module.js';
+import { SlotsModule } from './slots/slots.module.js';
 
 @Module({
   imports: [
@@ -33,7 +34,9 @@ import { UsersModule } from './users/users.module.js';
 
     DoctorsModule,
 
-    UsersModule
+    UsersModule,
+
+    SlotsModule
   ],
   controllers: [AppController],
   providers: [AppService],
