@@ -222,4 +222,26 @@ export class DoctorsService {
             throw new BadRequestException('Doctor Update Failed');
         }
     }
+
+    async deleteDoctor(id:number):Promise<string>{
+        try{
+            const doctor=await this.doctorRepo.findOne(
+                {
+                    where:{
+                        doctorid:id,
+                    },
+                }
+            );
+
+            if(doctor){
+                await this.doctorRepo.remove(doctor);
+
+                return 'Doctor Deleted Successfully';
+            } else{
+                return 'Doctor Not Found';
+            }
+        } catch{
+            throw new BadRequestException('Doctor Deletion Failed');
+        }
+    }
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Post,Get,Param,ParseIntPipe, Patch } from '@nestjs/common';
+import { Body, Controller, Post,Get,Param,ParseIntPipe, Patch, Delete } from '@nestjs/common';
 import { DoctorsService } from './doctors.service.js';
 import { CreateDoctorDto } from './dtos/create-doctor.dto.js';
 import { Doctors } from './entities/doctors.entity.js';
@@ -39,5 +39,10 @@ export class DoctorsController {
     @Body() doctor:UpdateDoctorDto
   ){
     return await this.doctorsService.updateDoctor(id,doctor);
+  }
+
+  @Delete('delete-doctor/:id')
+  async deleteDoctor(@Param('id',ParseIntPipe) id:number):Promise<string>{
+    return await this.doctorsService.deleteDoctor(id);
   }
 }
