@@ -179,4 +179,211 @@ export class SlotsService {
             throw new BadRequestException('Failed to Retrieve Slot');
         }
     }
+
+    async getSlotsByDoctorId(doctorId: number) {
+        try {
+            const slots = await this.slotRepo.find({
+                where: {
+                    doctor: {
+                        doctorid: doctorId,
+                    },
+                },
+                relations: {
+                    doctor: {
+                        user: true,
+                    },
+                },
+                select: {
+                    slotid: true,
+                    slotDate: true,
+                    start_time: true,
+                    end_time: true,
+                    status: true,
+                    doctor: {
+                        doctorid: true,
+                        user: {
+                            fullname: true,
+                        },
+                    },
+                },
+            });
+
+            if (slots.length > 0) {
+                return slots.map((slot) => ({
+                    slotid: slot.slotid,
+                    doctorid: slot.doctor.doctorid,
+                    doctorname: slot.doctor.user.fullname,
+                    slotDate: slot.slotDate,
+                    start_time: slot.start_time,
+                    end_time: slot.end_time,
+                    status: slot.status,
+                }));
+            } else {
+                return 'No Slots Found For This Doctor';
+            }
+
+        } catch (error) {
+            throw new BadRequestException('Failed to Retrieve Doctor Slots');
+        }
+    }
+
+    async getAvailableSlotsByDoctorId(doctorId: number) {
+        try {
+            const slots = await this.slotRepo.find({
+                where: {
+                    doctor: {
+                        doctorid: doctorId,
+                    },
+                    status: SlotStatus.AVAILABLE,
+                },
+                relations: {
+                    doctor: {
+                        user: true,
+                    },
+                },
+                select: {
+                    slotid: true,
+                    slotDate: true,
+                    start_time: true,
+                    end_time: true,
+                    status: true,
+                    doctor: {
+                        doctorid: true,
+                        user: {
+                            fullname: true,
+                        },
+                    },
+                },
+            });
+
+            if (slots.length > 0) {
+                return slots.map((slot) => ({
+                    slotid: slot.slotid,
+                    doctorid: slot.doctor.doctorid,
+                    doctorname: slot.doctor.user.fullname,
+                    slotDate: slot.slotDate,
+                    start_time: slot.start_time,
+                    end_time: slot.end_time,
+                    status: slot.status,
+                }));
+            } else {
+                return 'No Available Slots Found for this Doctor';
+            }
+
+        } catch (error) {
+            throw new BadRequestException('Failed to Retrieve Available Slots');
+        }
+    }
+
+    async getBookedSlotsByDoctorId(doctorId: number) {
+        try {
+            const slots = await this.slotRepo.find({
+                where: {
+                    doctor: {
+                        doctorid: doctorId,
+                    },
+                    status: SlotStatus.BOOKED,
+                },
+                relations: {
+                    doctor: {
+                        user: true,
+                    },
+                },
+                select: {
+                    slotid: true,
+                    slotDate: true,
+                    start_time: true,
+                    end_time: true,
+                    status: true,
+                    doctor: {
+                        doctorid: true,
+                        user: {
+                            fullname: true,
+                        },
+                    },
+                },
+            });
+
+            if (slots.length > 0) {
+                return slots.map((slot) => ({
+                    slotid: slot.slotid,
+                    doctorid: slot.doctor.doctorid,
+                    doctorname: slot.doctor.user.fullname,
+                    slotDate: slot.slotDate,
+                    start_time: slot.start_time,
+                    end_time: slot.end_time,
+                    status: slot.status,
+                }));
+            } else {
+                return 'No Booked Slots Found for this Doctor';
+            }
+
+        } catch (error) {
+            throw new BadRequestException('Failed to Retrieve Booked Slots');
+        }
+    }
+
+    async getAllAvailableSlots() {
+        try {
+            const slots = await this.slotRepo.find({
+                where: {
+                    status: SlotStatus.AVAILABLE,
+                },
+                relations: {
+                    doctor: {
+                        user: true,
+                    },
+                },
+            });
+
+            if (slots.length > 0) {
+                return slots.map((slot) => ({
+                    slotid: slot.slotid,
+                    doctorid: slot.doctor.doctorid,
+                    doctorname: slot.doctor.user.fullname,
+                    slotDate: slot.slotDate,
+                    start_time: slot.start_time,
+                    end_time: slot.end_time,
+                    status: slot.status,
+                }));
+            } else {
+                return 'No Available Slots Found';
+            }
+
+        } catch (error) {
+            throw new BadRequestException('Failed to Retrieve Available Slots');
+        }
+    }
+
+    async getAllBookedSlots() {
+        try {
+            const slots = await this.slotRepo.find({
+                where: {
+                    status: SlotStatus.BOOKED,
+                },
+                relations: {
+                    doctor: {
+                        user: true,
+                    },
+                },
+            });
+
+            if (slots.length > 0) {
+                return slots.map((slot) => ({
+                    slotid: slot.slotid,
+                    doctorid: slot.doctor.doctorid,
+                    doctorname: slot.doctor.user.fullname,
+                    slotDate: slot.slotDate,
+                    start_time: slot.start_time,
+                    end_time: slot.end_time,
+                    status: slot.status,
+                }));
+            } else {
+                return 'No Booked Slots Found';
+            }
+
+        } catch (error) {
+            throw new BadRequestException('Failed to Retrieve Booked Slots');
+        }
+    }
 }
