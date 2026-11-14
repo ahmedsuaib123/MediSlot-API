@@ -21,4 +21,14 @@ export class DoctorsController {
   async getAllDoctors(){
     return await this.doctorsService.getAllDoctors();
   }
+
+  @Get('name/:name')
+  async getDoctorByName(@Param('name') name:string){
+    return await this.doctorsService.getDoctorByName(name);
+  }
+
+  @Get('specialization/:specialization')
+  async getDoctorBySpecialization(@Param('specialization') specialization:string){
+    return await this.doctorsService.getDoctorBySpecialization(specialization);
+  }
 }
