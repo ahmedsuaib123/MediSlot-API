@@ -5,7 +5,8 @@ import { Repository,ILike } from 'typeorm';
 import { UsersService } from '../users/users.service.js';
 import { CreateDoctorDto } from './dtos/create-doctor.dto.js';
 import { Users } from '../users/entities/users.entity.js';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException,NotFoundException } from '@nestjs/common';
+import { UpdateDoctorDto } from './dtos/update-doctor.dto.js';
 
 @Injectable()
 export class DoctorsService {
@@ -185,6 +186,40 @@ export class DoctorsService {
             }));
         } else {
             return 'Doctor Not Found';
+        }
+    }
+
+    async updateDoctor(id: number, doctor: UpdateDoctorDto) {
+        try {
+            const existingDoctor = await this.doctorRepo.findOne({
+                where: {
+                    doctorid: id,
+                },
+            });
+
+            if (existingDoctor) {
+
+                existingDoctor.specialization =
+                    doctor.specialization ?? existingDoctor.specialization;
+
+                existingDoctor.consultationFee =
+                    doctor.consultationFee ?? existingDoctor.consultationFee;
+
+                existingDoctor.experienceYear =
+                    doctor.experienceYear ?? existingDoctor.experienceYear;
+
+                return await this.doctorRepo.save(existingDoctor);
+
+            } else {
+                throw new NotFoundException('Doctor Not Found');
+            }
+
+        } catch (error) {
+            if (error instanceof NotFoundException) {
+                throw error;
+            }
+
+            throw new BadRequestException('Doctor Update Failed');
         }
     }
 }

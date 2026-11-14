@@ -1,7 +1,8 @@
-import { Body, Controller, Post,Get,Param,ParseIntPipe } from '@nestjs/common';
+import { Body, Controller, Post,Get,Param,ParseIntPipe, Patch } from '@nestjs/common';
 import { DoctorsService } from './doctors.service.js';
 import { CreateDoctorDto } from './dtos/create-doctor.dto.js';
 import { Doctors } from './entities/doctors.entity.js';
+import { UpdateDoctorDto } from './dtos/update-doctor.dto.js';
 
 @Controller('doctors')
 export class DoctorsController {
@@ -30,5 +31,13 @@ export class DoctorsController {
   @Get('specialization/:specialization')
   async getDoctorBySpecialization(@Param('specialization') specialization:string){
     return await this.doctorsService.getDoctorBySpecialization(specialization);
+  }
+
+  @Patch('update-doctor/:id')
+  async UpdateDoctor(
+    @Param('id',ParseIntPipe) id:number,
+    @Body() doctor:UpdateDoctorDto
+  ){
+    return await this.doctorsService.updateDoctor(id,doctor);
   }
 }
