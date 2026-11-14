@@ -70,4 +70,41 @@ export class DoctorsService {
             return 'Doctor Not Found';
         }
     }
+
+    async getAllDoctors(){
+        const doctors=await this.doctorRepo.find(
+            {
+                relations:{
+                    user:true,
+                },
+                select: {
+                    doctorid: true,
+                    specialization: true,
+                    consultationFee: true,
+                    experienceYear: true,
+                    created_at: true,
+                    updated_at: true,
+
+                    user: {
+                        userid: true,
+                        fullname: true,
+                        email: true,
+                        contact: true,
+                    },
+                },
+            }
+        );
+
+        //return doctors;
+        return doctors.map((doctor) => ({
+            doctorid: doctor.doctorid,
+            userid: doctor.user.userid,
+            fullname: doctor.user.fullname,
+            email: doctor.user.email,
+            contact: doctor.user.contact,
+            specialization: doctor.specialization,
+            consultationFee: Number(doctor.consultationFee),
+            experienceYear: doctor.experienceYear,
+        }));
+    }
 }

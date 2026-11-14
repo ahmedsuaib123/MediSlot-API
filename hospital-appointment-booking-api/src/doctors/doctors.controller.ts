@@ -16,4 +16,9 @@ export class DoctorsController {
   async getDoctorById(@Param('id',ParseIntPipe) id:number){
     return await this.doctorsService.getDoctorById(id);
   }
+
+  @Get()
+  async getAllDoctors(){
+    return await this.doctorsService.getAllDoctors();
+  }
 }
