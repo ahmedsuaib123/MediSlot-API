@@ -36,4 +36,38 @@ export class DoctorsService {
             throw new BadRequestException('doctor creation failed');
         }
     }
+
+    async getDoctorById(id:number):Promise<Doctors|string>{
+
+        const doctor=await this.doctorRepo.findOne(
+            {
+                where:{
+                    doctorid:id,
+                },
+                relations:{
+                    user:true,
+                },
+                select:{
+                    doctorid:true,
+                    specialization:true,
+                    consultationFee:true,
+                    experienceYear:true,
+                    created_at:true,
+                    updated_at:true,
+                    user:{
+                        userid:true,
+                        fullname:true,
+                        email:true,
+                        contact:true,
+                    },
+                }
+            }
+        );
+
+        if(doctor){
+            return doctor;
+        } else{
+            return 'Doctor Not Found';
+        }
+    }
 }

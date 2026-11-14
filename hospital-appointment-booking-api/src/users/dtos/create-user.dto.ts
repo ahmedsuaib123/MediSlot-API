@@ -1,5 +1,5 @@
-import { IsString,IsNotEmpty,MaxLength,IsEmail,IsEnum,MinLength,IsInt,Min } from "class-validator";
-import { Gender, BloodGroup } from '../entities/users.entity.js';
+import { IsString,IsNotEmpty,MaxLength,IsEmail,IsEnum,MinLength,IsInt,Min,IsIn,ValidateIf,IsNumber} from "class-validator";
+import { Gender, BloodGroup, UserRole } from '../entities/users.entity.js';
 import { Type } from 'class-transformer';
 
 export class CreateUserDto{
@@ -19,11 +19,12 @@ export class CreateUserDto{
 
     @Type(() => Number)
     @IsInt()
-    @Min(0)
+    @Min(1)
     age:number;
 
     @IsEnum(Gender)
     gender:Gender;
+
     @IsEnum(BloodGroup)
     bloodgroup: BloodGroup;
 
@@ -31,4 +32,25 @@ export class CreateUserDto{
     @IsNotEmpty()
     @MinLength(8)
     password:string;
+
+    @IsNotEmpty()
+    @IsIn([UserRole.PATIENT,UserRole.DOCTOR])
+    role:UserRole;
+
+    @ValidateIf((o)=>o.role===UserRole.DOCTOR)
+    @IsString()
+    @IsNotEmpty()
+    specialization:string;
+
+    @ValidateIf((o)=>o.role===UserRole.DOCTOR)
+    @Type(() => Number)
+    @IsNumber()
+    @Min(0)
+    consultationFee:number;
+
+    @ValidateIf((o)=>o.role===UserRole.DOCTOR)
+    @Type(() => Number)
+    @IsInt()
+    @Min(0)
+    experienceYear:number;
 }
