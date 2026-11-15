@@ -1,10 +1,11 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException,ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Slots, SlotStatus } from './entities/slots.entity.js';
 import { DoctorsService } from '../doctors/doctors.service.js';
 import { CreateSlotDto } from './dtos/create-slot.dto.js';
 import { Doctors } from '../doctors/entities/doctors.entity.js';
+import { UpdateSlotDto } from './dtos/update-slot.dto.js';
 
 @Injectable()
 export class SlotsService {
@@ -386,4 +387,114 @@ export class SlotsService {
             throw new BadRequestException('Failed to Retrieve Booked Slots');
         }
     }
+
+
+    async deleteSlot(id: number): Promise<string> {
+        try {
+            const slot = await this.slotRepo.findOne({
+                where: {
+                    slotid: id,
+                },
+            });
+
+            if (!slot) {
+                throw new NotFoundException('Slot Not Found');
+            }
+
+            if (slot.status !== SlotStatus.AVAILABLE) {
+                throw new BadRequestException(
+                    'Booked Slot Cannot Be Deleted',
+                );
+            }
+
+            await this.slotRepo.remove(slot);
+
+            return 'Slot Deleted Successfully';
+
+        } catch (error) {
+            if (
+                error instanceof NotFoundException ||
+                error instanceof BadRequestException
+            ) {
+                throw error;
+            }
+
+            throw new BadRequestException('Slot Deletion Failed');
+        }
+    }
+
+
+    async updateSlot(id: number, slot: UpdateSlotDto) {
+        try {
+            const existingSlot = await this.slotRepo.findOne({
+                where: {
+                    slotid: id,
+                },
+            });
+
+            if (!existingSlot) {
+                throw new NotFoundException('Slot Not Found');
+            }
+
+            if (existingSlot.status !== SlotStatus.AVAILABLE) {
+                throw new BadRequestException(
+                    'Booked Slot Cannot Be Updated',
+                );
+            }
+
+            const newDate = slot.slotDate ?? existingSlot.slotDate;
+            const newStartTime = slot.start_time ?? existingSlot.start_time;
+            const newEndTime = slot.end_time ?? existingSlot.end_time;
+
+            if (newStartTime >= newEndTime) {
+                throw new BadRequestException(
+                    'End time must be after start time',
+                );
+            }
+
+            const existingSlots = await this.slotRepo.find({
+                where: {
+                    doctor: {
+                        doctorid: existingSlot.doctor.doctorid,
+                    },
+                    slotDate: newDate,
+                },
+                relations: {
+                    doctor: true,
+                },
+            });
+
+            const overlappingSlot = existingSlots.some(
+                (existing) =>
+                    existing.slotid !== id &&
+                    newStartTime < existing.end_time &&
+                    newEndTime > existing.start_time,
+            );
+
+            if (overlappingSlot) {
+                throw new ConflictException(
+                    'Doctor Already Has a Slot at This Time',
+                );
+            }
+
+            existingSlot.slotDate = newDate;
+            existingSlot.start_time = newStartTime;
+            existingSlot.end_time = newEndTime;
+
+            return await this.slotRepo.save(existingSlot);
+
+        } catch (error) {
+            if (
+                error instanceof NotFoundException ||
+                error instanceof BadRequestException ||
+                error instanceof ConflictException
+            ) {
+                throw error;
+            }
+
+            throw new BadRequestException('Slot Update Failed');
+        }
+    }
+
+
 }

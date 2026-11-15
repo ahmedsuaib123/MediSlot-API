@@ -1,6 +1,7 @@
-import { Controller,Post,Body,Get,ParseIntPipe,Param } from '@nestjs/common';
+import { Controller,Post,Body,Get,ParseIntPipe,Param, Patch,Delete } from '@nestjs/common';
 import { SlotsService } from './slots.service.js';
 import { CreateSlotDto } from './dtos/create-slot.dto.js';
+import { UpdateSlotDto } from './dtos/update-slot.dto.js';
 
 @Controller('slots')
 export class SlotsController {
@@ -46,5 +47,13 @@ export class SlotsController {
     return await this.slotsService.getBookedSlotsByDoctorId(doctorId);
   }
 
-  
+  @Patch(':id')
+  async updateSlot(@Param('id', ParseIntPipe) id: number,@Body() slot: UpdateSlotDto) {
+      return await this.slotsService.updateSlot(id, slot);
+  }
+
+  @Delete(':id')
+  async deleteSlot(@Param('id', ParseIntPipe) id: number): Promise<string> {
+    return await this.slotsService.deleteSlot(id);
+  }
 }
