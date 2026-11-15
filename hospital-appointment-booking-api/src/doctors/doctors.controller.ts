@@ -33,7 +33,7 @@ export class DoctorsController {
     return await this.doctorsService.getDoctorBySpecialization(specialization);
   }
 
-  @Patch('update-doctor/:id')
+  @Patch(':id')
   async UpdateDoctor(
     @Param('id',ParseIntPipe) id:number,
     @Body() doctor:UpdateDoctorDto
@@ -41,7 +41,7 @@ export class DoctorsController {
     return await this.doctorsService.updateDoctor(id,doctor);
   }
 
-  @Delete('delete-doctor/:id')
+  @Delete(':id')
   async deleteDoctor(@Param('id',ParseIntPipe) id:number):Promise<string>{
     return await this.doctorsService.deleteDoctor(id);
   }
