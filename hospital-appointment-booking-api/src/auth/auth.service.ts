@@ -84,7 +84,7 @@ if (!user) {
 }
 const {password_hash: _hash, ...account} =user;
 
-let profile Patients | null = null;
+let profile: Patients | null = null;
 if (user.role === UserRole.PATIENT) {
     profile = await this.dataSource.getRepository(Patients).findOne({
         where: { user: { userid: id } },

@@ -1,22 +1,38 @@
-import { Body,
-        Controller,
-        Get,
-        Param,
-        ParseIntPipe,
-        Patch,
-        Req, } from '@nestjs/common';
-
-        import type { Request } from 'express';
-        import { PatientsService } from './patients.service.js';
-        import type { CurrentUser } from './patients.service.js';
-        import { UpdatePatientDto } from './dtos/update-patient.dto.js';
-        import { Roles } from '../auth/roles/roles.decorator.js';
-        import { UserRole } from '../users/entities/users.entity.js';
-
+import {
+    Body,
+    Controller,
+    Get,
+    Param,
+    ParseIntPipe,
+    Patch,
+    Post,
+    Query,
+    Req,
+} from '@nestjs/common';
+import type { Request } from 'express';
+import { PatientsService } from './patients.service.js';
+import type { CurrentUser } from './patients.service.js';
+import { UpdatePatientDto } from './dtos/update-patient.dto.js';
+import { ListPatientsDto } from './dtos/list-patients.dto.js';
+import { CreatePatientDto } from './dtos/create-patient.dto.js';
+import { Roles } from '../auth/roles/roles.decorator.js';
+import { UserRole } from '../users/entities/users.entity.js';
 
 @Controller('patients')
 export class PatientsController {
     constructor(private readonly patientsService: PatientsService) {}
+
+    @Get()
+    @Roles(UserRole.ADMIN)
+    list(@Query() q: ListPatientsDto) {
+        return this.patientsService.list(q);
+    }
+
+    @Post()
+    @Roles(UserRole.ADMIN)
+    create(@Body() dto: CreatePatientDto) {
+        return this.patientsService.createPatient(dto);
+    }
 
     @Get('me')
     @Roles(UserRole.PATIENT)

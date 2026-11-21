@@ -5,9 +5,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, FindOptionsWhere, Repository } from 'typeorm';
 import { Appointments, AppointmentStatus } from './entities/appointments.entity.js';
 import { BookAppointmentDto } from './dto/book-appointment.dto.js';
+import { ListAppointmentsDto, ScheduleQueryDto } from './dto/list-appointments.dto.js';
 import { Patients } from '../patients/entities/patients.entity.js';
 import { Slots, SlotStatus } from '../slots/entities/slots.entity.js';
 import { UserRole } from '../users/entities/users.entity.js';
@@ -178,5 +179,71 @@ export class AppointmentsService {
       throw new ForbiddenException('You cannot view this appointment');
     }
     return this.format(appointment);
+  }
+
+  async listAll(q: ListAppointmentsDto) {
+    const page = q.page ?? 1;
+    const limit = q.limit ?? 10;
+
+    const where: FindOptionsWhere<Appointments> = {};
+    if (q.status) where.status = q.status;
+    if (q.patientId) where.patient = { patientid: q.patientId };
+
+    const slot: FindOptionsWhere<Slots> = {};
+    if (q.doctorId) slot.doctor = { doctorid: q.doctorId };
+    if (q.date) slot.slotDate = q.date;
+    if (Object.keys(slot).length > 0) where.slot = slot;
+
+    const [items, total] = await this.appointmentRepo.findAndCount({
+      where,
+      relations: { patient: true, slot: true },
+      order: { bookedAt: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+    return { items: items.map((a) => this.format(a)), total, page, limit };
+  }
+
+  async getSchedule(userId: number, q: ScheduleQueryDto) {
+    const slot: FindOptionsWhere<Slots> = {
+      doctor: { user: { userid: userId } },
+    };
+    if (q.date) slot.slotDate = q.date;
+
+    const where: FindOptionsWhere<Appointments> = { slot };
+    if (q.status) where.status = q.status;
+
+    const list = await this.appointmentRepo.find({
+      where,
+      relations: { patient: true, slot: true },
+      order: { slot: { slotDate: 'ASC', start_time: 'ASC' } },
+    });
+    return list.map((a) => this.format(a));
+  }
+
+  async markNoShow(id: number, current: CurrentUser) {
+    return await this.dataSource.transaction(async (manager) => {
+      const appointment = await manager.findOne(Appointments, {
+        where: { appointmentid: id },
+        relations: { patient: true, slot: { doctor: { user: true } } },
+        relationLoadStrategy: 'query',
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (!appointment) {
+        throw new NotFoundException('Appointment not found');
+      }
+      if (appointment.slot.doctor.user.userid !== current.id) {
+        throw new ForbiddenException('This is not your appointment');
+      }
+      if (appointment.status !== AppointmentStatus.BOOKED) {
+        throw new ConflictException('Only BOOKED appointments can be marked NO_SHOW');
+      }
+      if (this.slotStart(appointment.slot) > new Date()) {
+        throw new ConflictException('Slot has not started yet');
+      }
+      appointment.status = AppointmentStatus.NO_SHOW;
+      await manager.save(appointment);
+      return this.format(appointment);
+    });
   }
 }
