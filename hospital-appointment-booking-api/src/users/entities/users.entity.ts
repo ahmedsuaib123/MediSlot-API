@@ -1,10 +1,4 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import {Column,CreateDateColumn,Entity,PrimaryGeneratedColumn,UpdateDateColumn} from 'typeorm';
 
 export enum UserRole {
   ADMIN = 'ADMIN',
@@ -23,10 +17,10 @@ export enum BloodGroup {
   O_NEGATIVE = 'O-',
 }
 
-export enum Gender{
-  MALE='male',
-  FEMALE='female',
-  OTHERS='others',
+export enum Gender {
+  MALE = 'male',
+  FEMALE = 'female',
+  OTHERS = 'others',
 }
 
 @Entity('users')
@@ -62,7 +56,7 @@ export class Users {
     type: 'enum',
     enum: Gender,
   })
-  gender: string;
+  gender: Gender;
 
   @Column({
     type: 'enum',
@@ -79,8 +73,15 @@ export class Users {
   @Column({
     type: 'varchar',
     length: 255,
+    select: false,
   })
   password_hash: string;
+
+  @Column({
+    type: 'boolean',
+    default: true,
+  })
+  isActive: boolean;
 
   @CreateDateColumn({
     name: 'created_at',

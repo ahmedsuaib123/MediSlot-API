@@ -2,7 +2,6 @@ import { Type } from "class-transformer";
 import { IsNotEmpty, IsOptional, IsString,IsNumber,Min,IsInt} from "class-validator";
 
 export class UpdateDoctorDto{
-
     @IsOptional()
     @IsString()
     @IsNotEmpty()

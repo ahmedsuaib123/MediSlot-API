@@ -15,10 +15,14 @@ export class Slots{
     })
     slotDate: string;
 
-    @Column({ type: 'time' })
+    @Column({ 
+        type: 'time' 
+    })
     start_time: string;
 
-    @Column({ type: 'time' })
+    @Column({ 
+        type: 'time' 
+    })
     end_time: string;
 
     @Column({
@@ -35,12 +39,14 @@ export class Slots{
     doctor: Relation<Doctors>;
 
     @CreateDateColumn({ 
-        name: 'created_at', type: 'timestamp' 
+        name: 'created_at', 
+        type: 'timestamp' 
     })
     created_at: Date;
 
     @UpdateDateColumn({ 
-        name: 'updated_at', type: 'timestamp' 
+        name: 'updated_at', 
+        type: 'timestamp' 
     })
     updated_at: Date;
 }

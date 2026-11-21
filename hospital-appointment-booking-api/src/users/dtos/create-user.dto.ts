@@ -1,56 +1,76 @@
-import { IsString,IsNotEmpty,MaxLength,IsEmail,IsEnum,MinLength,IsInt,Min,IsIn,ValidateIf,IsNumber} from "class-validator";
-import { Gender, BloodGroup, UserRole } from '../entities/users.entity.js';
+
+import {
+  IsString,
+  IsNotEmpty,
+  MaxLength,
+  IsEmail,
+  IsEnum,
+  MinLength,
+  IsInt,
+  Min,
+  ValidateIf,
+  IsNumber,
+} from 'class-validator';
+
 import { Type } from 'class-transformer';
 
-export class CreateUserDto{
-    @IsString()
-    @IsNotEmpty()
-    @MaxLength(100)
-    fullname:string;
+import {
+  Gender,
+  BloodGroup,
+  UserRole,
+} from '../entities/users.entity.js';
 
-    @IsEmail()
-    @MaxLength(50)
-    email:string;
+export class CreateUserDto {
 
-    @IsString()
-    @IsNotEmpty()
-    @MaxLength(14)
-    contact:string;
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
+  fullname: string;
 
-    @Type(() => Number)
-    @IsInt()
-    @Min(1)
-    age:number;
+  @IsEmail()
+  @MaxLength(150)
+  email: string;
 
-    @IsEnum(Gender)
-    gender:Gender;
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(20)
+  contact: string;
 
-    @IsEnum(BloodGroup)
-    bloodgroup: BloodGroup;
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  age: number;
 
-    @IsString()
-    @IsNotEmpty()
-    @MinLength(8)
-    password:string;
+  @IsEnum(Gender)
+  gender: Gender;
 
-    @IsNotEmpty()
-    @IsIn([UserRole.PATIENT,UserRole.DOCTOR])
-    role:UserRole;
+  @IsEnum(BloodGroup)
+  bloodgroup: BloodGroup;
 
-    @ValidateIf((o)=>o.role===UserRole.DOCTOR)
-    @IsString()
-    @IsNotEmpty()
-    specialization:string;
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(8)
+  password: string;
 
-    @ValidateIf((o)=>o.role===UserRole.DOCTOR)
-    @Type(() => Number)
-    @IsNumber()
-    @Min(0)
-    consultationFee:number;
+  @IsNotEmpty()
+  @IsEnum(UserRole)
+  role: UserRole;
 
-    @ValidateIf((o)=>o.role===UserRole.DOCTOR)
-    @Type(() => Number)
-    @IsInt()
-    @Min(0)
-    experienceYear:number;
+  @ValidateIf((o) => o.role === UserRole.DOCTOR)
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(50)
+  specialization?: string;
+
+  @ValidateIf((o) => o.role === UserRole.DOCTOR)
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  consultationFee?: number;
+
+  @ValidateIf((o) => o.role === UserRole.DOCTOR)
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  experienceYear?: number;
 }
