@@ -5,14 +5,16 @@ import { CreateUserDto } from './dtos/create-user.dto.js';
 import { UpdateUserDto } from './dtos/update-user.dto.js';
 import { UserRole } from './entities/users.entity.js';
 import { Roles } from '../auth/roles/roles.decorator.js';
+import { Public } from '../auth/public.decorator.js';
 
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Public()
   @Post()
-  @Roles(UserRole.ADMIN)
+  // @Roles(UserRole.ADMIN)
   createUser(@Body() createUserDto: CreateUserDto) {
     return this.usersService.createUser(createUserDto);
   }

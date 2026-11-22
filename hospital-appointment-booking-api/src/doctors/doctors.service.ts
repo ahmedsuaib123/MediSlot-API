@@ -4,40 +4,103 @@ import { Doctors } from './entities/doctors.entity.js';
 import { Repository,ILike } from 'typeorm';
 import { UsersService } from '../users/users.service.js';
 import { CreateDoctorDto } from './dtos/create-doctor.dto.js';
-import { Users } from '../users/entities/users.entity.js';
+import { UserRole, Users } from '../users/entities/users.entity.js';
 import { BadRequestException,NotFoundException } from '@nestjs/common';
 import { UpdateDoctorDto } from './dtos/update-doctor.dto.js';
+import { ConflictException} from '@nestjs/common';
+ import * as bcrypt from 'bcrypt';
+
+
 
 @Injectable()
 export class DoctorsService {
     constructor(
         @InjectRepository(Doctors)
         private readonly doctorRepo: Repository<Doctors>,
+        @InjectRepository(Users)
+  private readonly userRepo: Repository<Users>,
         private readonly usersService: UsersService,
     ){}
 
-    async createDoctor(doctor: CreateDoctorDto): Promise<Doctors | string>{
-        try{
-            const usr=await this.usersService.getUserById(doctor.userId);
+ async createDoctor(doctor: CreateDoctorDto) {
 
-            if(usr!=null && typeof usr !=='string'){
-                const doctorObj=await this.doctorRepo.create(
-                    {
-                        specialization: doctor.specialization,
-                        consultationFee:doctor.consultationFee,
-                        experienceYear:doctor.experienceYear,
-                        user:usr as Users,
-                    }
-                );
-                return await this.doctorRepo.save(doctorObj); 
-            } else {
-                return 'User not found';
-            }
-        } catch{
-            throw new BadRequestException('doctor creation failed');
-        }
-    }
+  // 1. Check email
+  const existingUser = await this.userRepo.findOne({
+    where: {
+      email: doctor.email,
+    },
+  });
 
+  if (existingUser) {
+    throw new ConflictException(
+      'Email already registered',
+    );
+  }
+
+  // 2. Hash password
+  const hashedPassword = await bcrypt.hash(
+    doctor.password,
+    10,
+  );
+
+  // 3. Create User
+  const newUser = this.userRepo.create({
+    fullname: doctor.fullname,
+    email: doctor.email,
+    contact: doctor.contact,
+    age: doctor.age,
+    gender: doctor.gender,
+    bloodgroup: doctor.bloodgroup,
+    password_hash: hashedPassword,
+
+    // Backend নিজেই role set করবে
+    role: UserRole.DOCTOR,
+
+    isActive: true,
+  });
+
+  // 4. Save User
+  // এখানে database automatically userid generate করবে
+  const savedUser = await this.userRepo.save(newUser);
+
+  // 5. Create Doctor
+  const newDoctor = this.doctorRepo.create({
+    specialization: doctor.specialization,
+    consultationFee: doctor.consultationFee,
+    experienceYear: doctor.experienceYear,
+
+    // savedUser-এর generated userid relation-এর মাধ্যমে যাবে
+    user: savedUser,
+  });
+
+  // 6. Save Doctor
+  const savedDoctor = await this.doctorRepo.save(newDoctor);
+
+  // 7. Return response
+  return {
+    message: 'Doctor Created Successfully',
+
+    data: {
+      user: {
+        userid: savedUser.userid,
+        fullname: savedUser.fullname,
+        email: savedUser.email,
+        contact: savedUser.contact,
+        role: savedUser.role,
+        isActive: savedUser.isActive,
+      },
+
+      doctor: {
+        doctorid: savedDoctor.doctorid,
+        specialization: savedDoctor.specialization,
+        consultationFee: Number(
+          savedDoctor.consultationFee,
+        ),
+        experienceYear: savedDoctor.experienceYear,
+      },
+    },
+  };
+}
 
 
     async getAllDoctors(){

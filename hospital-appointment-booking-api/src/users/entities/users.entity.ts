@@ -73,7 +73,7 @@ export class Users {
   @Column({
     type: 'varchar',
     length: 255,
-    select: false,
+    select: true,
   })
   password_hash: string;
 
