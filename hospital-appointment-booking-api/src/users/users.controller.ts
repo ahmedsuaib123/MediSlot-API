@@ -12,9 +12,9 @@ import { Public } from '../auth/public.decorator.js';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Public()
+  
   @Post('create-user')
-  // @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN)
   createUser(@Body() createUserDto: CreateUserDto) {
     return this.usersService.createUser(createUserDto);
   }
