@@ -13,7 +13,7 @@ import { UserRole } from '../users/entities/users.entity.js';
 export class SlotsController {
   constructor(private readonly slotsService: SlotsService) {}
 
-  @Public()
+  @Roles(UserRole.ADMIN,UserRole.DOCTOR)
   @Post('create-slot')
   async createSlot(@Body() slot: CreateSlotDto) {
     return await this.slotsService.createSlot(slot);
@@ -53,12 +53,14 @@ export class SlotsController {
   async getBookedSlotsByDoctorId(@Param('doctorId', ParseIntPipe) doctorId: number){
     return await this.slotsService.getBookedSlotsByDoctorId(doctorId);
   }
-@Roles(UserRole.ADMIN,UserRole.DOCTOR)
+
+ @Roles(UserRole.ADMIN,UserRole.DOCTOR)
   @Patch(':id')
   async updateSlot(@Param('id', ParseIntPipe) id: number,@Body() slot: UpdateSlotDto) {
       return await this.slotsService.updateSlot(id, slot);
   }
-@Roles(UserRole.ADMIN,UserRole.DOCTOR)
+
+  @Roles(UserRole.ADMIN,UserRole.DOCTOR)
   @Delete(':id')
   async deleteSlot(@Param('id', ParseIntPipe) id: number): Promise<string> {
     return await this.slotsService.deleteSlot(id);

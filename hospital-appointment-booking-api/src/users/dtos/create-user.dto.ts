@@ -1,24 +1,6 @@
-
-import {
-  IsString,
-  IsNotEmpty,
-  MaxLength,
-  IsEmail,
-  IsEnum,
-  MinLength,
-  IsInt,
-  Min,
-  ValidateIf,
-  IsNumber,
-} from 'class-validator';
-
+import {IsString,IsNotEmpty,MaxLength,IsEmail,IsEnum,MinLength,IsInt,Min,ValidateIf,IsNumber} from 'class-validator';
 import { Type } from 'class-transformer';
-
-import {
-  Gender,
-  BloodGroup,
-  UserRole,
-} from '../entities/users.entity.js';
+import {Gender,BloodGroup,UserRole} from '../entities/users.entity.js';
 
 export class CreateUserDto {
 

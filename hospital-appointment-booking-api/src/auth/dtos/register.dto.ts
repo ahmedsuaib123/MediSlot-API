@@ -32,33 +32,31 @@ export class RegisterDto {
     @MinLength(8)
     @MaxLength(20)
     password: string;
+    
+    @Type(()=> Number)
+    @IsInt()
+    @Min(0)
+    @Max(120)
+    age: number;
 
+    @Transform(({ value }) => 
+      typeof value === 'string' ? value.toLowerCase() : value,
+    )
+    @IsEnum(Gender)
+    gender: Gender;
 
+    @IsEnum(BloodGroup)
+    bloodGroup:BloodGroup;
 
-@Type(()=> Number)
-@IsInt()
-@Min(0)
-@Max(120)
-age: number;
+    @IsString()
+    @IsNotEmpty()
+    @MaxLength(1000)
+    address: string;
 
-@Transform(({ value }) => 
-  typeof value === 'string' ? value.toLowerCase() : value,
-)
-@IsEnum(Gender)
-gender: Gender;
-
-@IsEnum(BloodGroup)
-bloodGroup:BloodGroup;
-
-@IsString()
-@IsNotEmpty()
-@MaxLength(1000)
-address: string;
-
-@IsString()
-@IsNotEmpty()
-@MaxLength(20)
-emergencyContact: string;
-}
+    @IsString()
+    @IsNotEmpty()
+    @MaxLength(20)
+    emergencyContact: string;
+  }
 
 

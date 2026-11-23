@@ -8,7 +8,7 @@ import { UserRole, Users } from '../users/entities/users.entity.js';
 import { BadRequestException,NotFoundException } from '@nestjs/common';
 import { UpdateDoctorDto } from './dtos/update-doctor.dto.js';
 import { ConflictException} from '@nestjs/common';
- import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 
 
 
@@ -18,89 +18,83 @@ export class DoctorsService {
         @InjectRepository(Doctors)
         private readonly doctorRepo: Repository<Doctors>,
         @InjectRepository(Users)
-  private readonly userRepo: Repository<Users>,
+        private readonly userRepo: Repository<Users>,
         private readonly usersService: UsersService,
     ){}
 
- async createDoctor(doctor: CreateDoctorDto) {
+    async createDoctor(doctor: CreateDoctorDto) {
 
-  // 1. Check email
-  const existingUser = await this.userRepo.findOne({
-    where: {
-      email: doctor.email,
-    },
-  });
+    const existingUser = await this.userRepo.findOne({
+        where: {
+        email: doctor.email,
+        },
+    });
 
-  if (existingUser) {
-    throw new ConflictException(
-      'Email already registered',
+    if (existingUser) {
+        throw new ConflictException(
+        'Email already registered',
+        );
+    }
+
+    const hashedPassword = await bcrypt.hash(
+        doctor.password,
+        10,
     );
-  }
 
-  // 2. Hash password
-  const hashedPassword = await bcrypt.hash(
-    doctor.password,
-    10,
-  );
+    const newUser = this.userRepo.create({
+        fullname: doctor.fullname,
+        email: doctor.email,
+        contact: doctor.contact,
+        age: doctor.age,
+        gender: doctor.gender,
+        bloodgroup: doctor.bloodgroup,
+        password_hash: hashedPassword,
 
-  // 3. Create User
-  const newUser = this.userRepo.create({
-    fullname: doctor.fullname,
-    email: doctor.email,
-    contact: doctor.contact,
-    age: doctor.age,
-    gender: doctor.gender,
-    bloodgroup: doctor.bloodgroup,
-    password_hash: hashedPassword,
+        role: UserRole.DOCTOR,
 
-    // Backend নিজেই role set করবে
-    role: UserRole.DOCTOR,
+        isActive: true,
+    });
 
-    isActive: true,
-  });
+    
+    const savedUser = await this.userRepo.save(newUser);
 
-  // 4. Save User
-  // এখানে database automatically userid generate করবে
-  const savedUser = await this.userRepo.save(newUser);
+        
+        const newDoctor = this.doctorRepo.create({
+            specialization: doctor.specialization,
+            consultationFee: doctor.consultationFee,
+            experienceYear: doctor.experienceYear,
+            
+            user: savedUser,
+        });
 
-  // 5. Create Doctor
-  const newDoctor = this.doctorRepo.create({
-    specialization: doctor.specialization,
-    consultationFee: doctor.consultationFee,
-    experienceYear: doctor.experienceYear,
+        // 6. Save Doctor
+        const savedDoctor = await this.doctorRepo.save(newDoctor);
 
-    // savedUser-এর generated userid relation-এর মাধ্যমে যাবে
-    user: savedUser,
-  });
+        // 7. Return response
+        return {
+            message: 'Doctor Created Successfully',
 
-  // 6. Save Doctor
-  const savedDoctor = await this.doctorRepo.save(newDoctor);
+            data: {
+            user: {
+                userid: savedUser.userid,
+                fullname: savedUser.fullname,
+                email: savedUser.email,
+                contact: savedUser.contact,
+                role: savedUser.role,
+                isActive: savedUser.isActive,
+            },
 
-  // 7. Return response
-  return {
-    message: 'Doctor Created Successfully',
-
-    data: {
-      user: {
-        userid: savedUser.userid,
-        fullname: savedUser.fullname,
-        email: savedUser.email,
-        contact: savedUser.contact,
-        role: savedUser.role,
-        isActive: savedUser.isActive,
-      },
-
-      doctor: {
-        doctorid: savedDoctor.doctorid,
-        specialization: savedDoctor.specialization,
-        consultationFee: Number(
-          savedDoctor.consultationFee,
-        ),
-        experienceYear: savedDoctor.experienceYear,
-      },
-    },
-  };
-}
+            doctor: {
+                doctorid: savedDoctor.doctorid,
+                specialization: savedDoctor.specialization,
+                consultationFee: Number(
+                savedDoctor.consultationFee,
+                ),
+                experienceYear: savedDoctor.experienceYear,
+            },
+            },
+        };
+    }
 
 
     async getAllDoctors(){

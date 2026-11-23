@@ -18,36 +18,41 @@ export class DoctorsController {
   {
     console.log("controller hit ");
   }
+
  @Roles(UserRole.ADMIN)
-@Post('create-doctor')
-async createDoctor(
-  @Body() doctor: CreateDoctorDto,
-) {
-  return await this.doctorsService.createDoctor(doctor);
-}
-@Roles(UserRole.ADMIN)
+ @Post('create-doctor')
+  async createDoctor(
+    @Body() doctor: CreateDoctorDto,
+  ) {
+    return await this.doctorsService.createDoctor(doctor);
+  }
+
+  @Roles(UserRole.ADMIN,UserRole.DOCTOR)
   @Get(':id')
   async getDoctorById(@Param('id',ParseIntPipe) id:number){
     return await this.doctorsService.getDoctorById(id);
   }
  
- @Public()
+  @Public()
   @Get()
   async getAllDoctors(){
     return await this.doctorsService.getAllDoctors();
   }
- @Public()
+
+
+  @Public()
   @Get('name/:name')
   async getDoctorByName(@Param('name') name:string){
     return await this.doctorsService.getDoctorByName(name);
   }
- @Public()
+
+  @Public()
   @Get('specialization/:specialization')
   async getDoctorBySpecialization(@Param('specialization') specialization:string){
     return await this.doctorsService.getDoctorBySpecialization(specialization);
   }
- @Roles(UserRole.ADMIN,UserRole.DOCTOR
- )
+
+  @Roles(UserRole.ADMIN,UserRole.DOCTOR)
   @Patch(':id')
   async UpdateDoctor(
     @Param('id',ParseIntPipe) id:number,
