@@ -427,10 +427,13 @@ export class SlotsService {
     async updateSlot(id: number, slot: UpdateSlotDto) {
         try {
             const existingSlot = await this.slotRepo.findOne({
-                where: {
-                    slotid: id,
-                },
-            });
+    where: {
+        slotid: id,
+    },
+    relations: {
+        doctor: true,
+    },
+});
 
             if (!existingSlot) {
                 throw new NotFoundException('Slot Not Found');

@@ -13,11 +13,13 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   
-  @Post('create-user')
-  @Roles(UserRole.ADMIN)
+ 
+  @Post()
+  @Public()
   createUser(@Body() createUserDto: CreateUserDto) {
     return this.usersService.createUser(createUserDto);
   }
+
 
   @Get()
   @Roles(UserRole.ADMIN)
